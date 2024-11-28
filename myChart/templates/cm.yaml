@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flask-api-cm
+  namespace: tushar
+data:
+  APP_NAME: flask-api
+  APP_ENV: development

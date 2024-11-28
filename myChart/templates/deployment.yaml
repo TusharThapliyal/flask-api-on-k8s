@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-api
+  namespace: tushar
+spec:
+  selector:
+    matchLabels:
+      app: flask-api
+  template:
+    metadata:
+      labels:
+        app: flask-api
+    spec:
+
+      initContainers:
+      - name: fix-permissions
+        image: busybox
+        command: ["sh", "-c", "chown -R 1000:1000 /home/tushar/app/app-data"]
+        volumeMounts:
+          - name: mypv
+            mountPath: /home/tushar/app/app-data
+      
+      containers:
+      - name: flask-api
+        image: tusharthapliyal/flask-api:2
+        imagePullPolicy: Always
+        volumeMounts:
+          - mountPath: /home/tushar/app/app-data
+            name: mypv
+        securityContext:
+          runAsUser: 1000
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 5000
+        envFrom:
+          - configMapRef:
+              name: flask-api-cm
+          - secretRef:
+              name: flask-api-sec
+      volumes:
+        - name: mypv
+          persistentVolumeClaim:
+            claimName: mypvc
+
+
+
