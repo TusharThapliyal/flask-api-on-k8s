@@ -3,13 +3,10 @@ kind: Pod
 metadata:
   name: "{{ include "myChart.fullname" . }}-test-connection"
   labels:
-    {{- include "myChart.labels" . | nindent 4 }}
-  annotations:
-    "helm.sh/hook": test
+    app.kubernetes.io/name: "{{ include "myChart.name" . }}"
 spec:
   containers:
-    - name: wget
-      image: busybox
-      command: ['wget']
-      args: ['{{ include "myChart.fullname" . }}:{{ .Values.service.port }}']
-  restartPolicy: Never
+    - name: curl
+      image: curlimages/curl
+      command: ['sh', '-c', 'echo "Test Connection"']
+

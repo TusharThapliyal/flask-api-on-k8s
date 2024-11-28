@@ -1,21 +1,21 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mypv
+  name: {{ (index .Values.volumeMounts 0).name }}
 spec:
   capacity:
     storage: 10Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/home/ubuntu/project/flask-api"
+    path: {{ (index .Values.volumeMounts 0).hostPath }}
 
 ---
 
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mypvc
+  name: {{ (index .Values.volumes 0).persistentVolumeClaim.claimName }}
   namespace: tushar
 spec:
   resources:

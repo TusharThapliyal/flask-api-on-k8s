@@ -16,24 +16,27 @@ spec:
       initContainers:
       - name: fix-permissions
         image: busybox
-        command: ["sh", "-c", "chown -R 1000:1000 /home/tushar/app/app-data"]
+        command: ["sh", "-c", "chown -R 1000:1000 {{ (index .Values.volumeMounts 0).mountPath }}"]
         volumeMounts:
           - name: mypv
-            mountPath: /home/tushar/app/app-data
+            mountPath: {{ (index .Values.volumeMounts 0).mountPath }}
       
       containers:
       - name: flask-api
-        image: tusharthapliyal/flask-api:2
-        imagePullPolicy: Always
+        image: {{ .Values.image.repository }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
         volumeMounts:
-          - mountPath: /home/tushar/app/app-data
+          - mountPath: {{ (index .Values.volumeMounts 0).mountPath }}
             name: mypv
         securityContext:
-          runAsUser: 1000
+          runAsUser: {{ .Values.user }}
         resources:
           limits:
-            memory: "128Mi"
-            cpu: "500m"
+            memory: {{ .Values.resources.limits.memory }}
+            cpu: {{ .Values.resources.limits.cpu }}
+          requests:
+            memory: {{ .Values.resources.requests.memory }}
+            cpu: {{ .Values.resources.requests.cpu }}
         ports:
         - containerPort: 5000
         envFrom:
@@ -42,9 +45,9 @@ spec:
           - secretRef:
               name: flask-api-sec
       volumes:
-        - name: mypv
+        - name: {{ (index .Values.volumeMounts 0).name }}
           persistentVolumeClaim:
-            claimName: mypvc
+            claimName: {{ (index .Values.volumes 0).persistentVolumeClaim.claimName }}
 
 
 
